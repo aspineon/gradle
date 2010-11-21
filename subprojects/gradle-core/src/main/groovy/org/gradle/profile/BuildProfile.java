@@ -206,4 +206,14 @@ public class BuildProfile {
         }
         return result;
     }
+
+    public long getMaxProject() {
+        long max = 0;
+        for (ProjectProfile projectProfile : projects.values()) {
+            if (projectProfile.getElapsedTaskExecution() > max) {
+                max = projectProfile.getElapsedTaskExecution();
+            }
+        }
+        return max;
+    }
 }

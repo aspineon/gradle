@@ -111,5 +111,9 @@ public class ProjectProfile {
         }
         return result;
     }
+
+    public boolean hasMoreThanOneTask() {
+        return tasks.size() > 1;
+    }
 }
 

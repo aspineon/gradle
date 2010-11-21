@@ -59,13 +59,22 @@ public class ProfileListener implements BuildListener, ProjectEvaluationListener
     public void buildFinished(BuildResult result) {
         buildProfile.setBuildFinished(System.currentTimeMillis());
 
-        HTMLProfileReport report = new HTMLProfileReport(buildProfile);
+        ProfileFileReport report = new ProfileFileReport(buildProfile);
         File file = new File(result.getGradle().getRootProject().getBuildDir(), "reports/profile/profile-"+
                 FILE_DATE_FORMAT.format(new Date(profileStarted)) + ".html" );
         file.getParentFile().mkdirs();
         try {
             file.createNewFile();
-            report.writeTo(file);
+            report.writeTo(file, "ProfileTemplate.html");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        file = new File(result.getGradle().getRootProject().getBuildDir(), "reports/profile/profile-chart-"+
+                FILE_DATE_FORMAT.format(new Date(profileStarted)) + ".html" );
+        file.getParentFile().mkdirs();
+        try {
+            file.createNewFile();
+            report.writeTo(file, "ProfileBarChartTemplate.html");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

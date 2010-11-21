@@ -1,0 +1,283 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<% int width = 600 %>
+<html>
+<head>
+    <title>Profile Bar Charts</title>
+    <style type="text/css">
+A:link {
+text-decoration: none;
+color: black;
+}
+A:hover {
+text-decoration: underline;
+color: red;
+}
+        .date { text-align:right; }
+                table.summary { border: solid black 1px;
+        background-color: #fff;
+        padding: 0.2em;
+        }
+        table.summary td {
+        padding: 0.2em;
+        }
+                td {
+                    vertical-align:top;
+                    white-space:nowrap;
+                }
+                .heading {
+                    text-align:center;
+                    f.ont-family:sans-serif;
+                    font-weight:bold;
+                }
+
+                .project_heading {
+                    text-align: left;
+                    font-family:sans-serif;
+                    font-weight:bold;
+                    padding-top: 3em;
+        border-top: 1px dashed black;
+                }
+
+              .graph {
+                margin-bottom: 1em;
+              }
+
+
+              .graph thead th {
+                padding: 0.3em;
+              }
+
+              .graph tfoot td {
+                border-top: solid 1px #999999;
+                text-align: center;
+                padding: 0.5em;
+                color: #666666;
+              }
+
+              .bar {
+                background-color: white;
+                text-align: right;
+                border-left: solid 1px black;
+                border-right: solid 1px black;
+                width: 600px;
+              }
+
+              .bar div {
+                text-align: right;
+                color: white;
+                float: left;
+                padding-top: 0;
+                height: 1em;
+              }
+
+              .bar div.conf {
+                background-color: #004080;
+                border-top: solid 2px #0077DD;
+                border-bottom: solid 2px #002266;
+                }
+
+        .bar div.exec {
+                background-color: #008040;
+                border-top: solid 2px #00DD77;
+                border-bottom: solid 2px #006622;
+                }
+                .nb {
+                        font-family: Courier;
+                        }
+                div.nb, td.nb {
+                text-align: right;
+                }
+
+        body {
+        background-color: #dddddd;
+                    font-family: verdana, arial, sans serif;
+                }
+        .taskPathParent {
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="header">
+        <span></span>
+        <span class="date"></span>
+    </div>
+    <table>
+        <tr>
+            <td>Profiled with tasks: ${build.taskDescription}</td>
+            <td>&nbsp;</td>
+            <td class="date">Run on: ${date.format(build.buildStarted)}</td>
+        </tr>
+        <tr>
+            <td>
+                <div id="summary">
+                    <div class="heading">Summary</div>
+                    <table class="summary" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td>Total Build Time</td>
+                            <td class="nb">${time.format(build.elapsedTotal)}</td>
+                        </tr>
+                        <tr>
+                            <td>Startup</td>
+                            <td class="nb">${time.format(build.elapsedStartup)}</td>
+                        </tr>
+                        <tr>
+                            <td>Settings and BuildSrc</td>
+                            <td class="nb">${time.format(build.elapsedSettings)}</td>
+                        </tr>
+                        <tr>
+                            <td>Loading Projects</td>
+                            <td class="nb">${time.format(build.elapsedProjectsLoading)}</td>
+                        </tr>
+                        <tr>
+                            <td>Configuring Projects</td>
+                            <td class="nb">${time.format(build.elapsedProjectsEvaluated)}</td>
+                        </tr>
+                        <tr>
+                            <td>Total Task Execution</td>
+                            <td class="nb">${time.format(build.elapsedTotalExecutionTime)}</td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td>
+                <div id="projects_time_overview">
+                    <div class="heading">Projects Configuration & Execution</div>
+                    <table width="${250 + width}" class="graph" cellspacing="6" cellpadding="0">
+                      <thead>
+                        <tr>
+                            <th colspan="2">Project</th>
+                            <th>Conf</th>
+                            <th>Exec</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      <%
+                            def projects = build.projects
+                            def totalConfPlusExecTime = projects.sum { it.elapsedEvaluation }+ build.elapsedTotalExecutionTime
+                            projects.sort { it.elapsedTaskExecution }
+                            projects = projects.sort{ it.elapsedEvaluation + it.elapsedTaskExecution }.reverse()
+                            for (def project : projects) {
+                      %>
+                        <tr>
+                            <td width="100"><a href="#proj_${project.path.replace(':', '_')}">$project.path</a></td>
+                            <td width="${width}" class="bar">
+                                <%
+                                  def execPercentage = project.elapsedTaskExecution / totalConfPlusExecTime
+                                  int execPx = width * execPercentage
+                                  def confPercentage = project.elapsedEvaluation / totalConfPlusExecTime
+                                  int confPx = width * confPercentage
+                                %>
+                                <div class="conf" style="width: ${confPx}px"></div>
+                                <div class="exec" style="width: ${execPx}px"></div>
+                                <!--<span class="nb">${percent.format(confPercentage + execPercentage)}</span> -->
+                            </td>
+                            <td class="nb">${time.format(project.elapsedEvaluation)}</td>
+                            <td class="nb">${time.format(project.elapsedTaskExecution)}</td>
+                        </tr>
+                        <% } %>
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                            <th colspan="2"></th>
+                            <th class="nb">${time.format(projects.sum { it.elapsedEvaluation }) }</th>
+                            <th class="nb">${time.format(build.elapsedTotalExecutionTime)}</th>
+                        </tr>
+                      </tfoot>
+                    </table>
+                </div>
+
+
+
+
+                      <%
+                            projects = projects.sort{ it.elapsedTaskExecution }.reverse().findAll{ it.elapsedTaskExecution > 0 }
+                            for (def project : projects) {
+                      %>
+                <div id="proj_${project.path.replace(':', '_')}" style="margin-top: 3em;">
+                    <table width="${250 + width + 50}" class="graph" cellspacing="6" cellpadding="0">
+                        <!--
+                      <thead>
+                        <tr>
+                            <th colspan="2">Task</th>
+                            <th colspan="2">Exec</th>
+                        </tr>
+                      </thead>
+                      -->
+                      <tbody>
+                        <%
+                            def profiles = project.taskProfiles
+                            profiles.sort { it.elapsedExecution }
+                            profiles = profiles.reverse()
+                        boolean projName = false
+                        if (project.hasMoreThanOneTask()) {
+                            for (def task : profiles) {
+                        %>
+                        <tr>
+                            <%
+                            if (!projName) {
+                                projName = true;
+                            %>
+                            <td width="100" rowspan="${profiles.size()}" class="taskPathParent">${task.path.substring(0, task.path.lastIndexOf(":"))}</td>
+                            <%
+                            }
+                            %>
+                            <td width="150" class="taskPathChild">${task.path.substring(task.path.lastIndexOf(":"))}</td>
+                            <td width="${width}" class="bar">
+                                <%
+                                  def execPercentage = task.elapsedExecution / project.elapsedTaskExecution
+                                  int execPx = width * execPercentage
+                                %>
+                                <div class="exec" style="width: ${execPx}px"></div><%= task.state.getSkipped() ? task.state.skipMessage : (task.state.didWork ? '&nbsp;' : 'Did No Work')%>
+                            </td>
+                            <!-- <td class="nb" width="50">${percent.format(execPercentage)}</td>   -->
+
+                            <td class="nb" width="50">${time.format(task.elapsedExecution)}</td>
+                        </tr>
+                        <%
+                            }
+                        %>
+                        <tfoot>
+                                                <tr>
+                                                    <th colspan="3"></th>
+                                                    <th class="nb">${time.format(project.elapsedTaskExecution)}</th>
+                                                </tr>
+                                              </tfoot>
+                        <%
+                        }
+                        else {
+                        for (def task : profiles) {
+                        %>
+                        <tr>
+                            <td width="250"><span class="taskPathParent">${task.path.substring(0, task.path.lastIndexOf(":"))}</span>:<span class="taskPathChild">${task.path.substring(task.path.lastIndexOf(":"))}</span></td>
+                            <td width="${width}" class="bar">
+                                <%
+                                  int execPx = width
+                                %>
+                                <div class="exec" style="width: ${execPx}px; text-align: right;"><%= task.state.getSkipped() ? task.state.skipMessage : (task.state.didWork ? '&nbsp;' : 'Did No Work')%></div>
+                            </td>
+                            <!--<td class="nb" width="50">${percent.format(1.0)}</td> -->
+                            <td class="nb" width="50">${time.format(task.elapsedExecution)}</td>
+                        </tr>
+                        <%
+                            }
+                        }
+                        %>
+                                            </tbody>
+                    </table>
+                </div>
+                <%
+                  }
+                %>
+
+
+
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

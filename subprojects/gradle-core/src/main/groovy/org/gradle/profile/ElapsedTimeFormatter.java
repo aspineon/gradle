@@ -23,9 +23,12 @@ public class ElapsedTimeFormatter {
     private static final DecimalFormat HMFORMAT = new DecimalFormat("0");
     private static final DecimalFormat HMFORMAT2 = new DecimalFormat("00");
 
+    private static final long MILLIS_IN_HOUR = 1000L * 60 * 60;
+    private static final long MINUTES_IN_HOUR = 1000L * 60;
+
     public String format(long elapsed) {
-        long hours = elapsed / (1000L * 60 * 60);
-        long minutes = (elapsed / (1000L * 60)) % 60;
+        long hours = elapsed / MILLIS_IN_HOUR;
+        long minutes = (elapsed / MINUTES_IN_HOUR) % 60;
         float seconds = (float) ((elapsed % 60000L) / 1000.0);
         StringBuffer result = new StringBuffer();
 
