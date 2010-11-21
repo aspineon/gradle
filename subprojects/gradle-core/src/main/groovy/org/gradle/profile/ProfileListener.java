@@ -27,14 +27,24 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProfileListener implements BuildListener, ProjectEvaluationListener, TaskExecutionListener {
     private BuildProfile buildProfile;
+    private static final String OUTPUT_DIR = "reports/profile/";
     private static final SimpleDateFormat FILE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+
+    private Map<String, String> outputFiles;
+
     private long profileStarted;
 
     public ProfileListener(long profileStarted) {
         this.profileStarted = profileStarted;
+        outputFiles =  new HashMap<String, String>();
+        outputFiles.put("profile.html", "ProfileTemplate.html");
+        outputFiles.put("profile-bar-chart.html", "ProfileBarChartTemplate.html");
+        outputFiles.put("profile.txt", "ProfileTemplate.txt");
     }
 
     // BuildListener
@@ -58,25 +68,19 @@ public class ProfileListener implements BuildListener, ProjectEvaluationListener
 
     public void buildFinished(BuildResult result) {
         buildProfile.setBuildFinished(System.currentTimeMillis());
-
         ProfileFileReport report = new ProfileFileReport(buildProfile);
-        File file = new File(result.getGradle().getRootProject().getBuildDir(), "reports/profile/profile-"+
-                FILE_DATE_FORMAT.format(new Date(profileStarted)) + ".html" );
-        file.getParentFile().mkdirs();
-        try {
-            file.createNewFile();
-            report.writeTo(file, "ProfileTemplate.html");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        file = new File(result.getGradle().getRootProject().getBuildDir(), "reports/profile/profile-chart-"+
-                FILE_DATE_FORMAT.format(new Date(profileStarted)) + ".html" );
-        file.getParentFile().mkdirs();
-        try {
-            file.createNewFile();
-            report.writeTo(file, "ProfileBarChartTemplate.html");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        final File buildDir = result.getGradle().getRootProject().getBuildDir();
+        for (Map.Entry<String, String> entry : outputFiles.entrySet()) {
+            // TODO refactor
+            File file = new File(buildDir, OUTPUT_DIR + entry.getKey().substring(0, entry.getKey().lastIndexOf('.')) + "-"+
+                    FILE_DATE_FORMAT.format(new Date(profileStarted)) +  entry.getKey().substring(entry.getKey().lastIndexOf('.')));
+            file.getParentFile().mkdirs();
+            try {
+                file.createNewFile();
+                report.writeTo(file, entry.getValue());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }   
         }
     }
 
