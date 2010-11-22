@@ -10,32 +10,29 @@ Loading Projects: ${time.format(build.elapsedProjectsLoading)}
 Configuring Projects: ${time.format(build.elapsedProjectsEvaluated)}
 Total Task Execution: ${time.format(build.elapsedTotalExecutionTime)}
 
-Configuration
                         <%
                             def projects = build.projects
                             projects.sort { it. elapsedEvaluation }
                             projects = projects.reverse()
-
-                            for (def project : projects) {
                         %>
-$project.path ${time.format(project.elapsedEvaluation)}
-                        <% } %>
+Configuration
+<%
+for (def project : projects) {
+%>  $project.path ${time.format(project.elapsedEvaluation)}
+<% } %>
             
 Task Execution
-         <%
-                            projects.sort { it.elapsedTaskExecution }
-                            projects = projects.reverse()
-                            for (def project : projects) {
-                        %>
-$project.path ${time.format(project.elapsedTaskExecution)} (total)
-                        <%
-                            def profiles = project.taskProfiles
-                            profiles.sort { it.elapsedExecution }
-                            profiles = profiles.reverse()
-                            for (def task : profiles) {
-                        %>
-    ${task.path} ${time.format(task.elapsedExecution)} <%= task.state.getSkipped() ? task.state.skipMessage : (task.state.didWork ? '&nbsp;' : 'Did No Work')%>
-                        <%
-                            }
-                        %>
-                        <% } %>
+<%
+projects.sort { it.elapsedTaskExecution }
+projects = projects.reverse()
+for (def project : projects) {
+%>$project.path ${time.format(project.elapsedTaskExecution)} (total)
+<%
+def profiles = project.taskProfiles
+profiles.sort { it.elapsedExecution }
+profiles = profiles.reverse()
+for (def task : profiles) {
+%>  ${task.path} ${time.format(task.elapsedExecution)} <%= task.state.getSkipped() ? task.state.skipMessage : (task.state.didWork ? '&nbsp;' : 'Did No Work')%>
+<%
+    }
+} %>
