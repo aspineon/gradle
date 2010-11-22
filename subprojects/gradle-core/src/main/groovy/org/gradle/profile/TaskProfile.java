@@ -23,7 +23,7 @@ import org.gradle.api.tasks.TaskState;
  * This includes timestamps around task execution and the resulting TaskState.
  */
 public class TaskProfile {
-    private Task task;
+    private final Task task;
     private long start;
     private long finish;
     private TaskState state;

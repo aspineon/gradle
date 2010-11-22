@@ -36,8 +36,8 @@ import java.util.*;
  * </ul>
  */
 public class BuildProfile {
-    private Gradle gradle;
-    Map<Project, ProjectProfile> projects = new HashMap<Project, ProjectProfile>();
+    private final Gradle gradle;
+    final Map<Project, ProjectProfile> projects = new HashMap<Project, ProjectProfile>();
     long profilingStarted;
     long buildStarted;
     long settingsEvaluated;

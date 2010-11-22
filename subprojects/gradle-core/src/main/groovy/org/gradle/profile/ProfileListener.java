@@ -35,9 +35,9 @@ public class ProfileListener implements BuildListener, ProjectEvaluationListener
     private static final String OUTPUT_DIR = "reports/profile/";
     private static final SimpleDateFormat FILE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 
-    private Map<String, String> outputFiles;
+    private final Map<String, String> outputFiles;
 
-    private long profileStarted;
+    private final long profileStarted;
 
     public ProfileListener(long profileStarted) {
         this.profileStarted = profileStarted;

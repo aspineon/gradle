@@ -24,11 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ProjectProfile {
-    private Project project;
+    private final Project project;
     private long beforeEvaluate;
     private long afterEvaluate;
     private ProjectState state;
-    private HashMap<Task, TaskProfile> tasks = new HashMap<Task, TaskProfile>();
+    private final HashMap<Task, TaskProfile> tasks = new HashMap<Task, TaskProfile>();
 
     public ProjectProfile(Project project) {
         this.project = project;
