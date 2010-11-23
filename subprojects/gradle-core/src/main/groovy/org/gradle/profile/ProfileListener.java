@@ -26,30 +26,27 @@ import org.gradle.api.tasks.TaskState;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ProfileListener implements BuildListener, ProjectEvaluationListener, TaskExecutionListener {
     private BuildProfile buildProfile;
     private static final String OUTPUT_DIR = "reports/profile/";
     private static final SimpleDateFormat FILE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 
-    private final Map<String, String> outputFiles;
+    private final List<ProfileOutput> outputs = new ArrayList<ProfileOutput>();
 
     private final long profileStarted;
 
-    // TODO ProfileFile inner class
     public ProfileListener(long profileStarted) {
         this.profileStarted = profileStarted;
-        outputFiles =  new HashMap<String, String>();
-        outputFiles.put("profile.html", "ProfileTemplate.html");
-        outputFiles.put("profile-bar-chart.html", "ProfileBarChartTemplate.html");
-        outputFiles.put("profile.txt", "ProfileTemplate.txt");
-        outputFiles.put("profile.csv", "ProfileTemplate.csv");
+        outputs.add(new ProfileOutput("profile.html", "ProfileTemplate.html"));
+        outputs.add(new ProfileOutput("profile-bar-chart.html", "ProfileBarChartTemplate.html"));
+        outputs.add(new ProfileOutput("profile.txt", "ProfileTemplate.txt"));
+        outputs.add(new ProfileOutput("profile.csv", "ProfileTemplate.csv"));
     }
 
     // BuildListener
+
     public void buildStarted(Gradle gradle) {
         buildProfile = new BuildProfile(gradle);
         buildProfile.setBuildStarted(System.currentTimeMillis());
@@ -72,21 +69,21 @@ public class ProfileListener implements BuildListener, ProjectEvaluationListener
         buildProfile.setBuildFinished(System.currentTimeMillis());
         ProfileFileReport report = new ProfileFileReport(buildProfile);
         final File buildDir = result.getGradle().getRootProject().getBuildDir();
-        for (Map.Entry<String, String> entry : outputFiles.entrySet()) {
-            // TODO refactor
-            File file = new File(buildDir, OUTPUT_DIR + entry.getKey().substring(0, entry.getKey().lastIndexOf('.')) + "-"+
-                    FILE_DATE_FORMAT.format(new Date(profileStarted)) +  entry.getKey().substring(entry.getKey().lastIndexOf('.')));
+        for (ProfileOutput profile : outputs) {
+            File file = new File(buildDir, OUTPUT_DIR + profile.getFilePrefix() + "-" +
+                    FILE_DATE_FORMAT.format(new Date(profileStarted)) + profile.getFileExtension());
             file.getParentFile().mkdirs();
             try {
                 file.createNewFile();
-                report.writeTo(file, entry.getValue());
+                report.writeTo(file, profile.getTemplateFile());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
-            }   
+            }
         }
     }
 
     // ProjectEvaluationListener
+
     public void beforeEvaluate(Project project) {
         buildProfile.getProjectProfile(project).setBeforeEvaluate(System.currentTimeMillis());
     }
@@ -97,8 +94,8 @@ public class ProfileListener implements BuildListener, ProjectEvaluationListener
         projectProfile.setState(state);
     }
 
-
     // TaskExecutionListener
+
     public void beforeExecute(Task task) {
         Project project = task.getProject();
         ProjectProfile projectProfile = buildProfile.getProjectProfile(project);
@@ -111,6 +108,32 @@ public class ProfileListener implements BuildListener, ProjectEvaluationListener
         TaskProfile taskProfile = projectProfile.getTaskProfile(task);
         taskProfile.setFinish(System.currentTimeMillis());
         taskProfile.setState(state);
+    }
+
+    /**
+     * Container for easier manipulation of outputs. Holds information on output file and template that will be used to write into this file.
+     */
+    class ProfileOutput {
+
+        private final String outputFile;
+        private final String templateFile;
+
+        public ProfileOutput(String outputFile, String templateFile) {
+            this.outputFile = outputFile;
+            this.templateFile = templateFile;
+        }
+
+        public String getFilePrefix() {
+            return outputFile.substring(0, outputFile.lastIndexOf('.'));
+        }
+
+        public String getFileExtension() {
+            return outputFile.substring(outputFile.lastIndexOf('.'));
+        }
+
+        public String getTemplateFile() {
+            return templateFile;
+        }
     }
 }
 
