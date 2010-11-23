@@ -10,11 +10,11 @@ Loading Projects: ${time.format(build.elapsedProjectsLoading)}
 Configuring Projects: ${time.format(build.elapsedProjectsEvaluated)}
 Total Task Execution: ${time.format(build.elapsedTotalExecutionTime)}
 
-                        <%
-                            def projects = build.projects
-                            projects.sort { it. elapsedEvaluation }
-                            projects = projects.reverse()
-                        %>
+<%
+def projects = build.projects
+projects.sort { it. elapsedEvaluation }
+projects = projects.reverse()
+%>
 Configuration
 <%
 for (def project : projects) {

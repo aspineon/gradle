@@ -39,12 +39,14 @@ public class ProfileListener implements BuildListener, ProjectEvaluationListener
 
     private final long profileStarted;
 
+    // TODO ProfileFile inner class
     public ProfileListener(long profileStarted) {
         this.profileStarted = profileStarted;
         outputFiles =  new HashMap<String, String>();
         outputFiles.put("profile.html", "ProfileTemplate.html");
         outputFiles.put("profile-bar-chart.html", "ProfileBarChartTemplate.html");
         outputFiles.put("profile.txt", "ProfileTemplate.txt");
+        outputFiles.put("profile.csv", "ProfileTemplate.csv");
     }
 
     // BuildListener
