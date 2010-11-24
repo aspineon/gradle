@@ -49,10 +49,6 @@ public class BuildProfile {
         this.gradle = gradle;
     }
 
-    public Gradle getGradle() {
-        return gradle;
-    }
-
     /**
      * Get a description of the tasks passed to gradle as targets from the command line
      * @return
