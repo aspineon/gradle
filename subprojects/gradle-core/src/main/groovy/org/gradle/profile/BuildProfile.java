@@ -197,7 +197,7 @@ public class BuildProfile {
 
     /**
      * Get the total task execution time from all projects.
-     * @return
+     * @return sum of execution times of all tasks of all projects (in millis)
      */
     public long getElapsedTotalExecutionTime() {
         long result = 0;
