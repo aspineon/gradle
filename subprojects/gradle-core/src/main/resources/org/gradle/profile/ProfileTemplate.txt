@@ -32,7 +32,7 @@ def profiles = project.taskProfiles
 profiles.sort { it.elapsedExecution }
 profiles = profiles.reverse()
 for (def task : profiles) {
-%>  ${task.path} ${time.format(task.elapsedExecution)} <%= task.state.getSkipped() ? task.state.skipMessage : (task.state.didWork ? '&nbsp;' : 'Did No Work')%>
+%>  ${task.path} ${time.format(task.elapsedExecution)} <%= task.state.getSkipped() ? task.state.skipMessage : (task.state.didWork ? '' : 'Did No Work')%>
 <%
     }
 } %>
