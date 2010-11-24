@@ -207,6 +207,10 @@ public class BuildProfile {
         return result;
     }
 
+    /** Returns max execution time of a project. Useful for deciding the max length of bar chart.
+     *
+     * @return max execution time of a project (in millis)
+     */
     public long getMaxProject() {
         long max = 0;
         for (ProjectProfile projectProfile : projects.values()) {
