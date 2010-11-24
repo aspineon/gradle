@@ -40,7 +40,6 @@ public class ProfileListener implements BuildListener, ProjectEvaluationListener
     public ProfileListener(long profileStarted) {
         this.profileStarted = profileStarted;
         outputs.add(new ProfileOutput("profile.html", "ProfileTemplate.html"));
-        outputs.add(new ProfileOutput("profile-bar-chart.html", "ProfileBarChartTemplate.html"));
         outputs.add(new ProfileOutput("profile.txt", "ProfileTemplate.txt"));
         outputs.add(new ProfileOutput("profile.csv", "ProfileTemplate.csv"));
     }
